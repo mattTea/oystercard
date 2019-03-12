@@ -198,3 +198,36 @@ Card | record_entry_station
 2.5.0 :004 > c
  => #<Oystercard:0x00007fc7db012480 @balance=5, @in_use=true> <- expect recorded entry station
 
+```
+In order to know where I have been
+As a customer
+I want to see all my previous trips
+```
+
+Object | Messages
+---------------- | --------------------
+Customer | 
+Card | top_up 
+Card | deduct (private now)
+Card | in_journey?
+Card | touch_in
+Card | touch_out
+Card | record_entry_station
+Card | record_trip
+
+1. record exit station
+2. record entry and exit station as a single trip
+3. store trip
+4. set exit station back to nil
+
+```
+2.5.0 :001 > c = Oystercard.new
+ => #<Oystercard:0x00007f8c6f0d9dc0 @balance=0> 
+2.5.0 :002 > c.top_up(10)
+ => 10 
+2.5.0 :003 > c.touch_in("Angel")
+ => "Angel" 
+2.5.0 :004 > c.touch_out("Kilburn")
+
+desired -> # => trip = [["Angel", "Kilburn"]]
+```
