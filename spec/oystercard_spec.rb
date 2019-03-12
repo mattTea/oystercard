@@ -35,18 +35,6 @@ describe Oystercard do
     expect { @card.top_up(limit) }.to raise_error error
   end
   
-  it { is_expected.to respond_to(:deduct) }
-
-  it "deducts £10 from the balance" do
-    @card.top_up(20)
-    expect(@card.deduct(10)).to eq 10
-  end
-
-  it "deducts a user entered fare from the balance" do
-    @card.top_up(50)
-    expect(@card.deduct(20)).to eq 30
-  end
-
   it { is_expected.to respond_to(:touch_in) }
 
   it "should show in journey as false at first" do
@@ -68,5 +56,13 @@ describe Oystercard do
 
   it "should have a minimum balance for a single journey" do
     expect { @card.touch_in }.to raise_error "Insufficient funds"
+  end
+
+  it "should deduct fare from balance" do
+    @card.top_up(5)
+    @card.touch_in
+    fare = Oystercard::MINIMUM_FARE
+
+    expect {@card.touch_out}.to change{@card.balance}.by(- fare)
   end
 end

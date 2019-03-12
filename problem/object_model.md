@@ -139,3 +139,37 @@ Card | touch_out
 1. set MINIMUM constant 
 2. check balance against minimum when you check in 
 3. raise error if balance < minimum 
+
+
+```
+In order to pay for my journey
+As a customer
+When my journey is complete, I need the correct amount deducted from my card
+```
+
+Object | Messages
+---------------- | --------------------
+Customer | 
+Card | top_up 
+Card | deduct
+Card | in_journey?
+Card | touch_in
+Card | touch_out
+
+```
+2.5.0 :001 > c = Oystercard.new
+ => #<Oystercard:0x00007fa290106398 @balance=0, @in_use=false> 
+2.5.0 :002 > c.top_up(10)
+ => 10 
+2.5.0 :003 > c
+ => #<Oystercard:0x00007fa290106398 @balance=10, @in_use=false> 
+2.5.0 :004 > c.touch_in
+ => true 
+2.5.0 :005 > c
+ => #<Oystercard:0x00007fa290106398 @balance=10, @in_use=true> 
+2.5.0 :006 > c.touch_out
+ => false 
+2.5.0 :007 > c
+ => #<Oystercard:0x00007fa290106398 @balance=10, @in_use=false>  <- balance should have changed by journey charge amount
+```
+
