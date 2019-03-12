@@ -173,3 +173,28 @@ Card | touch_out
  => #<Oystercard:0x00007fa290106398 @balance=10, @in_use=false>  <- balance should have changed by journey charge amount
 ```
 
+```
+In order to pay for my journey
+As a customer
+I need to know where I've travelled from
+```
+
+Object | Messages
+---------------- | --------------------
+Customer | 
+Card | top_up 
+Card | deduct (private now)
+Card | in_journey?
+Card | touch_in
+Card | touch_out
+Card | record_entry_station
+
+2.5.0 :001 > c = Oystercard.new
+ => #<Oystercard:0x00007fc7db012480 @balance=0, @in_use=false> 
+2.5.0 :002 > c.top_up(5)
+ => 5 
+2.5.0 :003 > c.touch_in
+ => true 
+2.5.0 :004 > c
+ => #<Oystercard:0x00007fc7db012480 @balance=5, @in_use=true> <- expect recorded entry station
+

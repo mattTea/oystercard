@@ -5,6 +5,8 @@ describe Oystercard do
     @card = Oystercard.new
   end
   
+  let(:station){ double :station }
+
   it { is_expected.to respond_to(:balance) } 
   it { is_expected.to respond_to(:top_up) }
 
@@ -43,26 +45,38 @@ describe Oystercard do
 
   it "should change in journey status to true when card touched in" do
     @card.top_up(5)
-    @card.touch_in
+    @card.touch_in(station)
     expect(@card).to be_in_journey
   end
 
   it "should change in journey status to false when card touched out" do
     @card.top_up(5)
-    @card.touch_in
+    @card.touch_in(station)
     @card.touch_out
     expect(@card).to_not be_in_journey
   end
 
   it "should have a minimum balance for a single journey" do
-    expect { @card.touch_in }.to raise_error "Insufficient funds"
+    expect { @card.touch_in(station) }.to raise_error "Insufficient funds"
   end
 
   it "should deduct fare from balance" do
     @card.top_up(5)
-    @card.touch_in
+    @card.touch_in(@station)
     fare = Oystercard::MINIMUM_FARE
 
     expect {@card.touch_out}.to change{@card.balance}.by(- fare)
+  end
+
+  it "should record journey entry station" do
+    @card.top_up(5)
+    expect {@card.touch_in(station)}.to change{@card.entry_station}.to(station)
+  end
+
+  it "should set entry_station to nil on touch_out" do
+    @card.top_up(10)
+    @card.touch_in(station)
+    @card.touch_out
+    expect(@card.entry_station).to eq nil
   end
 end
