@@ -6,89 +6,89 @@ describe Oystercard do
   let(:in_station) { double :in_station }
   let(:out_station) { double :out_station }
 
-  it "returns a starting balance of 0" do
-    expect(card.balance).to eq 0
+  context "when topping up the card with £10" do
+    before { card.top_up(10) }
+
+    it "has a balance of £10" do
+      expect(card.balance).to eq 10
+    end
+
+    it "has a balance of £30 when topped up by another £20" do 
+      card.top_up(20)
+      expect(card.balance).to eq 30
+    end
   end
 
-  it "should have a balance of 10 when user tops up 10" do
-    card.top_up(10)
-    expect(card.balance).to eq 10
+  context "when using an empty card" do
+    let(:limit) { Oystercard::DEFAULT_LIMIT }
+    
+    it "returns a starting balance of 0" do
+      expect(card.balance).to eq 0
+    end
+
+    it "has no journeys recorded" do
+      expect(card.show_journeys).to eq []
+    end
+
+    it "allows top up to £1 below limit amount" do
+      expect(card.top_up(limit - 1)).to eq limit - 1
+    end
+  
+    it "raises error when attempt to top up over limit is made" do
+      error = "Top-up exceeds £#{limit} balance limit. Add lower amount."
+      expect { card.top_up(limit + 1) }.to raise_error error
+    end
+
+    it "shows as not in journey" do
+      expect(card).to_not be_in_journey
+    end
   end
 
-  it "increases balance by top up amount" do 
-    card.top_up(10)
-    card.top_up(20)
-    expect(card.balance).to eq 30
+  context "at journey start" do
+    it "raises an error when there isn't a minimum balance" do
+      expect { card.touch_in(in_station) }.to raise_error "Insufficient funds"
+    end
+
+    it "records journey entry station" do
+      card.top_up(10)
+      expect {card.touch_in(in_station)}.to change{card.entry_station}.to(in_station)
+    end
+   
+    context "when in a journey" do
+      before do
+        card.top_up(10)
+        card.touch_in(in_station)
+      end
+
+      it "shows as in a journey" do
+        expect(card).to be_in_journey
+      end
+    end
   end
   
-  it "allows top up to 1 below limit amount" do
-    limit = Oystercard::DEFAULT_LIMIT
-    expect(card.top_up(limit - 1)).to eq limit - 1
-  end
+  context "at journey completion" do
+    before do
+      card.top_up(10)
+      card.touch_in(in_station)
+    end
 
-  it "has a default limit of £90" do
-    limit = Oystercard::DEFAULT_LIMIT
-    error = "Top-up exceeds £#{limit} balance limit. Add lower amount."
-    card.top_up(1)
-    expect { card.top_up(limit) }.to raise_error error
-  end
-  
-  it { is_expected.to respond_to(:touch_in) }
+    it "deducts fare from balance" do
+      fare = Oystercard::MINIMUM_FARE
+      expect {card.touch_out(out_station)}.to change{card.balance}.by(- fare)
+    end
 
-  it "should show in journey as false at first" do
-    expect(card).to_not be_in_journey
-  end
+    context "when journey has been completed" do
+      before do
+        card.touch_out(out_station)
+      end
+      
+      it "shows as not in journey" do
+        expect(card).to_not be_in_journey
+      end
 
-  it "should change in journey status to true when card touched in" do
-    card.top_up(5)
-    card.touch_in(in_station)
-    expect(card).to be_in_journey
-  end
-
-  it "should change in journey status to false when card touched out" do
-    card.top_up(5)
-    card.touch_in(in_station)
-    card.touch_out(out_station)
-    expect(card).to_not be_in_journey
-  end
-
-  it "should have a minimum balance for a single journey" do
-    expect { card.touch_in(in_station) }.to raise_error "Insufficient funds"
-  end
-
-  it "should deduct fare from balance" do
-    card.top_up(5)
-    card.touch_in(in_station)
-    fare = Oystercard::MINIMUM_FARE
-
-    expect {card.touch_out(out_station)}.to change{card.balance}.by(- fare)
-  end
-
-  it "should record journey entry station" do
-    card.top_up(5)
-    expect {card.touch_in(in_station)}.to change{card.entry_station}.to(in_station)
-  end
-
-  it "should set entry_station to nil on touch_out" do
-    card.top_up(10)
-    card.touch_in(in_station)
-    card.touch_out(out_station)
-    expect(card.entry_station).to eq nil
-  end
-
-  it "should record journey exit station" do
-    card.touch_out(out_station)
-    expect(card.exit_station).to eq out_station
-  end
-
-  it "should create a new card with an empty list of journeys" do
-    expect(card.list_of_journeys).to eq []
-  end
-
-  it "should create a journey after touching in and out" do
-    card.top_up(10)
-    card.touch_in(in_station)
-    card.touch_out(out_station)
-    expect(card.list_of_journeys).to eq [{in_station => out_station}]
-  end
+      it "shows the completed journey in a list" do
+        expect(card.show_journeys).to include ({entry: in_station, exit: out_station})
+      end
+    end
+  end  
 end
