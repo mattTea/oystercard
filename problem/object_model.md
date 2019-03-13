@@ -231,3 +231,15 @@ Card | record_trip
 
 desired -> # => trip = [["Angel", "Kilburn"]]
 ```
+
+```
+In order to know how far I have travelled
+As a customer
+I want to know what zone a station is in
+```
+
+```
+2.5.0 :001 > station = Station.new
+2.5.0 :002 > station.zone
+ => 6
+```
