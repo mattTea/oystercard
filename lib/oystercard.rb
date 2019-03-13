@@ -26,7 +26,7 @@ class Oystercard
     deduct(MINIMUM_FARE)
     
     @exit_station = station
-    @list_of_journeys << { entry: @entry_station, exit: @exit_station }
+    add_journey
     @entry_station = nil
   end
 
@@ -42,5 +42,9 @@ class Oystercard
 
   def deduct(amount)
     @balance -= amount
+  end
+
+  def add_journey
+    @list_of_journeys << { entry: @entry_station, exit: @exit_station }
   end
 end
