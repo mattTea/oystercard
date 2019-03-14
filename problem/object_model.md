@@ -269,3 +269,6 @@ Touch_out only...
 2.5.0 :004 > c
 2.5.0 :005 > #<OC: @balance=4, @list_of_journeys=[? -> "B", incomplete, £6]
 ```
+
+[Sequence diagram for `Journey`](https://github.com/mattTea/Portfolio/blob/master/images/oystercard_journey_sequence.jpg)
+
