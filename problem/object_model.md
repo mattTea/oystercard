@@ -243,3 +243,29 @@ I want to know what zone a station is in
 2.5.0 :002 > station.zone
  => 6
 ```
+
+```
+In order to be charged correctly
+As a customer
+I need a penalty charge deducted if I fail to touch in or out
+```
+
+```
+Touch_in only...
+
+2.5.0 :001 > c = Oystercard.new
+ => #<Oystercard:0x00007feb3617af38 @balance=0, @list_of_journeys=[]> 
+2.5.0 :002 > c.top_up(10)
+ => 10 
+2.5.0 :003 > c.touch_in("A")
+ => "A" 
+2.5.0 :004 > c
+2.5.0 :005 > #<OC: @balance=4, @list_of_journeys=["A" -> ?, incomplete, £6]
+
+Touch_out only...
+
+2.5.0 :003 > c.touch_out("B")
+ => "B" 
+2.5.0 :004 > c
+2.5.0 :005 > #<OC: @balance=4, @list_of_journeys=[? -> "B", incomplete, £6]
+```
