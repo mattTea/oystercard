@@ -1,5 +1,5 @@
 class Oystercard
-  attr_reader :balance, :entry_station, :exit_station # :list_of_journeys
+  attr_reader :balance, :entry_station, :exit_station, :list_of_journeys, :incomplete_journeys
 
   DEFAULT_LIMIT = 90
   MINIMUM = 1
@@ -8,6 +8,7 @@ class Oystercard
   def initialize
     @balance = 0
     @list_of_journeys = []
+    @incomplete_journeys = []
   end
 
   def top_up(amount)
@@ -16,13 +17,28 @@ class Oystercard
     @balance += amount
   end
 
-  def touch_in(station)
+  def touch_in(station, journey_class = Journey)
     raise "Insufficient funds" if @balance < MINIMUM
 
-    @entry_station = station
+    # set entry_station to station
+    # create new journey
+    # push new journey to incomplete_journeys
+    incomplete_journeys << journey_class.new(station)
+
+    @entry_station = station # <- sets in_journey? to true (not yet I don't think)
   end
 
   def touch_out(station)
+    # check if incomplete_journeys has anything in it
+    # if not      -> create a new journey
+    #             -> calculate fare as PENALTY_FARE
+    #             -> add journey to list_of_journeys
+
+    # if there is -> set exit_station of that journey to station
+    #             -> calculate fare as MINIMUM_FARE
+    #             -> add journey to list_of_journeys
+    #             -> delete journey from incomplete_journeys
+    
     deduct(MINIMUM_FARE)
     
     @exit_station = station
