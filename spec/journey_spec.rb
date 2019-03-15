@@ -25,6 +25,12 @@ describe Journey do
     expect(journey.complete?).to be false
   end
 
+  # it { is_expected.to respond_to(:update_journey) }
+
+  it "updates incomplete journey" do
+    
+  end
+
   # it "returns new journey on touch_in" do
   #   expect(journey).to be_instance_of Journey
   # end

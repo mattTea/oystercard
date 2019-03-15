@@ -1,5 +1,8 @@
+require_relative "journey"
+
 class Oystercard
-  attr_reader :balance, :entry_station, :exit_station, :list_of_journeys, :incomplete_journeys
+  # attr_reader :balance, :entry_station, :exit_station, :list_of_journeys, :incomplete_journey
+  attr_reader :balance, :list_of_journeys, :incomplete_journey
 
   DEFAULT_LIMIT = 90
   MINIMUM = 1
@@ -8,7 +11,7 @@ class Oystercard
   def initialize
     @balance = 0
     @list_of_journeys = []
-    @incomplete_journeys = []
+    @incomplete_journey = []
   end
 
   def top_up(amount)
@@ -19,31 +22,24 @@ class Oystercard
 
   def touch_in(station, journey_class = Journey)
     raise "Insufficient funds" if @balance < MINIMUM
-
-    # set entry_station to station
-    # create new journey
-    # push new journey to incomplete_journeys
-    incomplete_journeys << journey_class.new(station)
-
-    @entry_station = station # <- sets in_journey? to true (not yet I don't think)
+    new_journey = journey_class.new(station, nil)
+    @incomplete_journey << new_journey
+    deduct(new_journey.calculate_fare)
   end
 
-  def touch_out(station)
-    # check if incomplete_journeys has anything in it
-    # if not      -> create a new journey
-    #             -> calculate fare as PENALTY_FARE
-    #             -> add journey to list_of_journeys
-
-    # if there is -> set exit_station of that journey to station
-    #             -> calculate fare as MINIMUM_FARE
-    #             -> add journey to list_of_journeys
-    #             -> delete journey from incomplete_journeys
-    
-    deduct(MINIMUM_FARE)
-    
-    @exit_station = station
-    add_journey
-    @entry_station = nil
+  def touch_out(station, journey_class = Journey)
+    if @incomplete_journey.empty?
+      missing_touch_in_journey = journey_class.new(nil, station)
+      @list_of_journeys << missing_touch_in_journey
+      deduct(missing_touch_in_journey.calculate_fare)
+    else
+      refund = journey_class::PENALTY_FARE - journey_class::MINIMUM_FARE
+      completed_journey = @incomplete_journey[0]
+      completed_journey.update_journey(completed_journey.entry_station, station, completed_journey.fare - refund)
+      deduct(- refund)
+      @list_of_journeys << completed_journey
+      @incomplete_journey = []
+    end
   end
 
   def in_journey?

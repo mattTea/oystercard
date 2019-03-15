@@ -54,7 +54,6 @@ describe Oystercard do
       expect {card.touch_in(in_station)}.to change{card.entry_station}.to(in_station)
     end
 
-    # new touch_in test (Friday 15.03.19)
     let(:journey) { double :journey }
     let(:journey_class) { double :journey_class, new: journey }
     
@@ -62,7 +61,7 @@ describe Oystercard do
       allow(journey).to receive(:entry_station).and_return(in_station)
       card.top_up(10)
       card.touch_in(in_station, journey_class)
-      expect(card.incomplete_journeys).to include journey
+      expect(card.incomplete_journey).to include journey
     end
 
     context "when in a journey" do
